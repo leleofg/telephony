@@ -3,10 +3,20 @@ defmodule Subscriber do
 
   @subscribers %{:prepaid => "prepaid.txt", :postpaid => "postpaid.txt"}
 
-  def find_by_document_number(document_number) do
-    read_file(:prepaid) ++ read_file(:postpaid)
-    |> Enum.find(fn subscriber -> subscriber.document_number === document_number end)
+  def find_by_document_number(document_number, type \\ :all), do: find(document_number, type)
+
+  defp find(document_number, :prepaid), do: filter(get_subscribers(:prepaid), document_number)
+  defp find(document_number, :postpaid), do: filter(get_subscribers(:postpaid), document_number)
+  defp find(document_number, :all), do: filter(get_subscribers(:all), document_number)
+
+  defp get_subscribers(type) do
+    case type do
+      :all -> read_file(:prepaid) ++ read_file(:postpaid)
+      _ -> read_file(type)
+    end
   end
+
+  defp filter(list, document_number), do: Enum.find(list, &(&1.document_number == document_number))
 
   def create(name, age, document_number, plan \\ :prepaid) do
 
