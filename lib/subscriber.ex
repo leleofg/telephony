@@ -3,16 +3,16 @@ defmodule Subscriber do
 
   @subscribers %{:prepaid => "prepaid.txt", :postpaid => "postpaid.txt"}
 
-  def find_by_document_number(document_number, type \\ :all), do: find(document_number, type)
+  def find_by_document_number(document_number, plan \\ :all), do: find(document_number, plan)
 
   defp find(document_number, :prepaid), do: filter(get_subscribers(:prepaid), document_number)
   defp find(document_number, :postpaid), do: filter(get_subscribers(:postpaid), document_number)
   defp find(document_number, :all), do: filter(get_subscribers(:all), document_number)
 
-  defp get_subscribers(type) do
-    case type do
+  defp get_subscribers(plan) do
+    case plan do
       :all -> read_file(:prepaid) ++ read_file(:postpaid)
-      _ -> read_file(type)
+      _ -> read_file(plan)
     end
   end
 
@@ -30,7 +30,7 @@ defmodule Subscriber do
     end
   end
 
-  def read_file(plan \\ :prepaid) do
+  defp read_file(plan) do
     case File.read(@subscribers[plan]) do
       { :ok, content } -> content |> :erlang.binary_to_term()
       { :error, _reason} -> []
